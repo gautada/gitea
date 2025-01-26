@@ -1,7 +1,7 @@
 ARG ALPINE_VERSION=latest
 # │ STAGE: source gitea                                           
 # ╰―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――
-FROM gautada/alpine:$ALPINE_VERSION as src-gitea
+FROM docker.io/gautada/alpine:$ALPINE_VERSION as src-gitea
 
 ARG CONTAINER_VERSION=1.21.3
 ARG GITEA_VERSION=$CONTAINER_VERSION
