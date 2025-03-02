@@ -9,6 +9,12 @@ on:
     branches:
       - main
 
+env:
+  IMAGE_NAME: "gitea"
+  IMAGE_VERSION: "0.10.9"
+  IMAGE_TAG_PROD: "latest"
+  IMAGE_TAG_DEV: "dev"
+      
 jobs:
   dev-container-image:
     runs-on: ubuntu-latest
@@ -45,7 +51,7 @@ jobs:
       - name: Push `dev` image to registry 
         run: |
           P_IMG="docker.io/${{ secrets.DOCKERIO_REGISTRY }}"
-          IMG="$P_IMG/homepage:dev"
+          IMG="$P_IMG/{{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG_DEV }}"
           /usr/bin/podman tag "homepage:dev" $IMG 
           /usr/bin/podman push $IMG
 
@@ -53,10 +59,10 @@ jobs:
         if: github.event_name == 'pull_request' && github.base_ref == 'main'
         run: |
           P_IMG="docker.io/${{ secrets.DOCKERIO_REGISTRY }}"
-          IMG="$P_IMG/homepage:0.10.9"
+          IMG="$P_IMG/${{ env.IMAGE_NAME }}:${{ env.IMAGE_VERSION }}"
           /usr/bin/podman tag "homepage:dev" $IMG 
           /usr/bin/podman push $IMG
-          IMG="$P_IMG/homepage:latest"
+          IMG="$P_IMG/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG_PROD }}"
           /usr/bin/podman tag "homepage:dev" $IMG 
           /usr/bin/podman push $IMG
 
