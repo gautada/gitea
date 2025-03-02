@@ -70,4 +70,3 @@ jobs:
             "${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG_DEV }}" \
             "$IMG" 
           /usr/bin/podman push "$IMG"
-

@@ -32,7 +32,8 @@ LABEL description="A gitea container"
 # │ USER
 # ╰――――――――――――――――――――
 ARG USER=gitea
-SHELL option -o pipefail
+# Set shell to /bin/ash and enable pipefail for Alpine-based images
+SHELL ["/bin/ash", "-o", "pipefail", "-c"]
 RUN /usr/sbin/usermod -l $USER alpine \
  && /usr/sbin/usermod -d /home/$USER -m $USER \
  && /usr/sbin/groupmod -n $USER alpine \
