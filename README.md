@@ -14,7 +14,7 @@ Setup a `testdb` so the upgrade can be tested.
 Dump the existing database
 ```sh
 pg_dump -U gitea giteadb > giteadb.sql
-``` 
+```
 
 Create the test db
 ```sh
