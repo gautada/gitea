@@ -14,7 +14,7 @@ env:
   IMAGE_VERSION: "1.23.1"
   IMAGE_TAG_PROD: "latest"
   IMAGE_TAG_DEV: "dev"
-      
+
 jobs:
   dev-container-image:
     runs-on: ubuntu-latest
@@ -46,7 +46,7 @@ jobs:
       - name: "Build Container Image for aarch64 using Podman"
         run: |
           /usr/bin/podman build --arch aarch64 --no-cache \
-           --tag homepage:dev --file Containerfile .
+           --tag "${{ env.IMAGE_NAME }}:${{ env.IMAGE_VERSION }}" --file Containerfile .
 
       - name: "Push `dev` image to registry"
         run: |
