@@ -7,10 +7,9 @@ ARG CONTAINER_VERSION=1.23.1
 ARG GITEA_VERSION=$CONTAINER_VERSION
 ARG GITEA_BRANCH=v"$GITEA_VERSION"
 
-RUN /sbin/apk add --no-cache bash build-base git go nodejs npm
-
-RUN git config --global advice.detachedHead false
-RUN git clone --verbose --branch $GITEA_BRANCH --depth 1 https://github.com/go-gitea/gitea.git
+RUN /sbin/apk add --no-cache bash build-base git go nodejs npm \
+ && git config --global advice.detachedHead false \
+ && git clone --verbose --branch $GITEA_BRANCH --depth 1 https://github.com/go-gitea/gitea.git
 
 WORKDIR /gitea
 RUN TAGS="bindata" make clean-all build
@@ -33,10 +32,11 @@ LABEL description="A gitea container"
 # │ USER
 # ╰――――――――――――――――――――
 ARG USER=gitea
-RUN /usr/sbin/usermod -l $USER alpine
-RUN /usr/sbin/usermod -d /home/$USER -m $USER
-RUN /usr/sbin/groupmod -n $USER alpine
-RUN /bin/echo "$USER:$USER" | /usr/sbin/chpasswd
+SHELL option -o pipefail
+RUN /usr/sbin/usermod -l $USER alpine \
+ && /usr/sbin/usermod -d /home/$USER -m $USER \
+ && /usr/sbin/groupmod -n $USER alpine \
+ && /bin/echo "$USER:$USER" | /usr/sbin/chpasswd \
 
 # ╭―
 # │ PRIVILEGES

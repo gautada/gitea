@@ -60,9 +60,14 @@ jobs:
         run: |
           P_IMG="docker.io/${{ secrets.DOCKERIO_REGISTRY }}"
           IMG="$P_IMG/${{ env.IMAGE_NAME }}:${{ env.IMAGE_VERSION }}"
-          /usr/bin/podman tag "${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG_DEV }}" "$IMG" 
+          /usr/bin/podman tag \
+            "${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG_DEV }}" \
+            "$IMG" 
           /usr/bin/podman push "$IMG"
-          IMG="$P_IMG/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG_PROD }}"
-          /usr/bin/podman tag "${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG_DEV }}" "$IMG" 
+          IMG="$P_IMG/${{ env.IMAGE_NAME }}"
+          IMG="$IMG:${{ env.IMAGE_TAG_PROD }}"
+          /usr/bin/podman tag \
+            "${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG_DEV }}" \
+            "$IMG" 
           /usr/bin/podman push "$IMG"
 
