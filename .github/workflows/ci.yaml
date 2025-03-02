@@ -11,7 +11,7 @@ on:
 
 env:
   IMAGE_NAME: "gitea"
-  IMAGE_VERSION: "0.10.9"
+  IMAGE_VERSION: "1.23.1"
   IMAGE_TAG_PROD: "latest"
   IMAGE_TAG_DEV: "dev"
       
@@ -19,10 +19,10 @@ jobs:
   dev-container-image:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository
+      - name: "Checkout Repository"
         uses: actions/checkout@v4
 
-      - name: Run Super-Linter
+      - name: "Run Super-Linter"
         uses: super-linter/super-linter@v5
         env:
           VALIDATE_DOCKERFILE: true
@@ -30,32 +30,32 @@ jobs:
           # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # DOCKERFILE_FILE_NAME: Containerfile
 
-      - name: Set up packages 
+      - name: "Set up packages" 
         # QEMU for aarch64 (using emulation)
         run: |
           sudo apt-get update
           sudo apt-get install --yes qemu-user-static binfmt-support podman
           sudo update-binfmts --enable qemu-aarch64
 
-      - name: Repository registry login
+      - name: "Repository registry login"
         run: |
           echo "${{ secrets.DOCKERIO_TOKEN }}" | /usr/bin/podman login \
             --username "${{ secrets.DOCKERIO_REGISTRY }}" \
             --password-stdin docker.io
 
-      - name: Build Container Image for aarch64 using Podman
+      - name: "Build Container Image for aarch64 using Podman"
         run: |
           /usr/bin/podman build --arch aarch64 --no-cache \
            --tag homepage:dev --file Containerfile .
 
-      - name: Push `dev` image to registry 
+      - name: "Push `dev` image to registry"
         run: |
           P_IMG="docker.io/${{ secrets.DOCKERIO_REGISTRY }}"
           IMG="$P_IMG/{{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG_DEV }}"
           /usr/bin/podman tag "homepage:dev" $IMG 
           /usr/bin/podman push $IMG
 
-      - name: Push `latest` & {VERSION} to registry
+      - name: "Push `latest` & {VERSION} to registry"
         if: github.event_name == 'pull_request' && github.base_ref == 'main'
         run: |
           P_IMG="docker.io/${{ secrets.DOCKERIO_REGISTRY }}"
