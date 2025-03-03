@@ -35,7 +35,9 @@ jobs:
         # QEMU for aarch64 (using emulation)
         run: |
           sudo apt-get update
-          sudo apt-get install --yes qemu-user-static binfmt-support podman
+          sudo apt-get install --yes \
+            qemu-user-static \
+            binfmt-support podman
           sudo update-binfmts --enable qemu-aarch64
 
       - name: "Repository registry login"
@@ -46,8 +48,13 @@ jobs:
 
       - name: "Build Container Image for aarch64 using Podman"
         run: |
-          /usr/bin/podman build --arch aarch64 --no-cache \
-           --tag "${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG_DEV }}" --file Containerfile .
+          /usr/bin/podman build \
+           --arch aarch64 \
+           --build-arg "CONTAINER_VERSION=${{ env.IMAGE_VERSION }}"
+           --file Containerfile \
+           --no-cache \
+           --tag "${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG_DEV }}" \
+           .
           /usr/bin/podman images
 
       - name: "Push `dev` image to registry"

@@ -3,7 +3,7 @@ ARG ALPINE_VERSION=latest
 # ╰―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――
 FROM docker.io/gautada/alpine:$ALPINE_VERSION as src-gitea
 
-ARG CONTAINER_VERSION=1.23.4
+ARG CONTAINER_VERSION=1.23.1
 ARG GITEA_VERSION=$CONTAINER_VERSION
 ARG GITEA_BRANCH=v"$GITEA_VERSION"
 
