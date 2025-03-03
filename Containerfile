@@ -3,16 +3,17 @@ ARG ALPINE_VERSION=latest
 # ╰―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――
 FROM docker.io/gautada/alpine:$ALPINE_VERSION as src-gitea
 
-ARG CONTAINER_VERSION=1.23.1
+ARG CONTAINER_VERSION=1.23.4
 ARG GITEA_VERSION=$CONTAINER_VERSION
 ARG GITEA_BRANCH=v"$GITEA_VERSION"
 
+WORKDIR /
 RUN /sbin/apk add --no-cache bash build-base git go nodejs npm \
  && git config --global advice.detachedHead false \
- && git clone --verbose --branch $GITEA_BRANCH --depth 1 https://github.com/go-gitea/gitea.git
+ && git clone --branch $GITEA_BRANCH --depth 1 https://github.com/go-gitea/gitea.git
 
 WORKDIR /gitea
-RUN TAGS="bindata" make clean-all build
+RUN TAGS="bindata" make build
 
 # ╭―------------------------------------------------------------------------╮
 # │                                                                         │
@@ -64,15 +65,15 @@ RUN /bin/mkdir -p /etc/gitea /opt/gitea \
  && /bin/ln -fsv /mnt/volumes/configmaps/app.ini /etc/container/app.ini \
  && /bin/ln -fsv /mnt/volumes/container/app.ini /mnt/volumes/configmaps/app.ini \
  && /bin/ln -fsv /etc/container/app.ini /opt/gitea/app.ini
- 
+    
 RUN /sbin/apk add --no-cache bash git openssh-client
 COPY --from=src-gitea /gitea/gitea /usr/bin/gitea
 COPY --from=src-gitea /gitea/custom/conf/app.example.ini /etc/gitea/app.example.ini
 
-RUN /bin/mkdir -p /mnt/volumes/container/custom \
- && /bin/mkdir -p /mnt/volumes/container/data \
- && /bin/mkdir -p /mnt/volumes/container/log \
- && /bin/mkdir -p /mnt/volumes/container/repos
+# RUN /bin/mkdir -p /mnt/volumes/container/custom \
+#  /mnt/volumes/container/data \
+#  /mnt/volumes/container/log \
+#  /mnt/volumes/container/repos
 
 # ╭――――――――――――――――――――╮
 # │ SETTINGS           │

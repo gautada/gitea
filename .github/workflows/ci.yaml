@@ -11,12 +11,12 @@ on:
 
 env:
   IMAGE_NAME: "gitea"
-  IMAGE_VERSION: "1.23.1"
+  IMAGE_VERSION: "1.23.4"
   IMAGE_TAG_PROD: "latest"
   IMAGE_TAG_DEV: "dev"
 
 jobs:
-  dev-container-image:
+  build-integrate:
     runs-on: ubuntu-latest
     steps:
       - name: "Checkout Repository"
@@ -26,9 +26,10 @@ jobs:
         uses: super-linter/super-linter@v5
         env:
           VALIDATE_DOCKERFILE: true
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+          DOCKERFILE_FILE_NAME: Containerfile
           # DEFAULT_BRANCH: dev
           # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # DOCKERFILE_FILE_NAME: Containerfile
 
       - name: "Set up packages" 
         # QEMU for aarch64 (using emulation)
@@ -55,7 +56,7 @@ jobs:
           /usr/bin/podman tag "${{ env.IMAGE_NAME }}" "$IMG" 
           /usr/bin/podman push "$IMG"
 
-      - name: "Push `latest` & {VERSION} to registry"
+      - name: "Push `latest` & <IMAGE_VERSION> to registry"
         if: github.event_name == 'pull_request' && github.base_ref == 'main'
         run: |
           P_IMG="docker.io/${{ secrets.DOCKERIO_REGISTRY }}"
