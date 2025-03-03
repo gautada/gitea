@@ -48,7 +48,7 @@ jobs:
         run: |
           /usr/bin/podman build --arch aarch64 --no-cache \
            --tag "${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG_DEV }}" --file Containerfile .
-         /usr/bin/podman images
+          /usr/bin/podman images
 
       - name: "Push `dev` image to registry"
         run: |
