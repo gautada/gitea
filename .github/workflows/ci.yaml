@@ -26,7 +26,7 @@ jobs:
         uses: super-linter/super-linter@v5
         env:
           VALIDATE_DOCKERFILE: true
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DOCKERFILE_FILE_NAME: Containerfile
           # DEFAULT_BRANCH: dev
           # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -47,7 +47,7 @@ jobs:
       - name: "Build Container Image for aarch64 using Podman"
         run: |
           /usr/bin/podman build --arch aarch64 --no-cache \
-           --tag "${{ env.IMAGE_NAME }}:${{ env.IMAGE_VERSION }}" --file Containerfile .
+           --tag "${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG_DEV }}" --file Containerfile .
 
       - name: "Push `dev` image to registry"
         run: |
