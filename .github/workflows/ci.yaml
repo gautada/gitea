@@ -54,8 +54,8 @@ jobs:
         run: |
           S_IMG="${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG_DEV }}"
           P_IMG="docker.io/${{ secrets.DOCKERIO_REGISTRY }}"
-          IMG="$P_IMG/${{ S_IMG }}"
-          /usr/bin/podman tag "${{ S_IMG }}" "$IMG"
+          IMG="$P_IMG/$S_IMG"
+          /usr/bin/podman tag "$S_IMG" "$IMG"
           /usr/bin/podman push "$IMG"
 
       - name: "Push `latest` & <IMAGE_VERSION> to registry"
@@ -64,9 +64,9 @@ jobs:
           S_IMG="${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG_DEV }}"
           P_IMG="docker.io/${{ secrets.DOCKERIO_REGISTRY }}"
           IMG="$P_IMG/${{ env.IMAGE_NAME }}:${{ env.IMAGE_VERSION }}"
-          /usr/bin/podman tag "${{ S_IMG }}" "$IMG"
+          /usr/bin/podman tag "$S_IMG" "$IMG"
           /usr/bin/podman push "$IMG"
           IMG="$P_IMG/${{ env.IMAGE_NAME }}"
           IMG="$IMG:${{ env.IMAGE_TAG_PROD }}"
-          /usr/bin/podman tag "${{ S_IMG }}" "$IMG"
+          /usr/bin/podman tag "$S_IMG" "$IMG"
           /usr/bin/podman push "$IMG"
