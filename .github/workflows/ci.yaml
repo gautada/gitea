@@ -48,26 +48,25 @@ jobs:
         run: |
           /usr/bin/podman build --arch aarch64 --no-cache \
            --tag "${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG_DEV }}" --file Containerfile .
+         /usr/bin/podman images
 
       - name: "Push `dev` image to registry"
         run: |
+          SRC="${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG_DEV }}"
           P_IMG="docker.io/${{ secrets.DOCKERIO_REGISTRY }}"
-          IMG="$P_IMG/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG_DEV }}"
-          /usr/bin/podman tag "${{ env.IMAGE_NAME }}" "$IMG" 
+          IMG="$P_IMG/${{ SRC }}"
+          /usr/bin/podman tag "${{ SRC }}" "$IMG"
           /usr/bin/podman push "$IMG"
 
       - name: "Push `latest` & <IMAGE_VERSION> to registry"
         if: github.event_name == 'pull_request' && github.base_ref == 'main'
         run: |
+          SRC="${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG_DEV }}"
           P_IMG="docker.io/${{ secrets.DOCKERIO_REGISTRY }}"
           IMG="$P_IMG/${{ env.IMAGE_NAME }}:${{ env.IMAGE_VERSION }}"
-          /usr/bin/podman tag \
-            "${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG_DEV }}" \
-            "$IMG" 
+          /usr/bin/podman tag "${{ SRC }}" "$IMG"
           /usr/bin/podman push "$IMG"
           IMG="$P_IMG/${{ env.IMAGE_NAME }}"
           IMG="$IMG:${{ env.IMAGE_TAG_PROD }}"
-          /usr/bin/podman tag \
-            "${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG_DEV }}" \
-            "$IMG" 
+          /usr/bin/podman tag "${{ SRC }}" "$IMG"
           /usr/bin/podman push "$IMG"
