@@ -11,7 +11,7 @@ on:
 
 env:
   IMAGE_NAME: "gitea"
-  IMAGE_VERSION: "1.23.4"
+  IMAGE_VERSION: "1.23.5"
   IMAGE_TAG_PROD: "latest"
   IMAGE_TAG_DEV: "dev"
 

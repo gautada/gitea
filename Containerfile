@@ -1,26 +1,21 @@
 ARG ALPINE_VERSION=latest
-# │ STAGE: source gitea                                           
+# │ STAGE: source gitea
 # ╰―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――
-FROM docker.io/gautada/alpine:$ALPINE_VERSION as src-gitea
+FROM docker.io/gautada/alpine:$ALPINE_VERSION AS build
 
-ARG CONTAINER_VERSION=1.23.1
-ARG GITEA_VERSION=$CONTAINER_VERSION
+ARG IMAGE_VERSION=1.23.5
+ARG GITEA_VERSION=$IMAGE_VERSION
 ARG GITEA_BRANCH=v"$GITEA_VERSION"
 
 WORKDIR /
 RUN /sbin/apk add --no-cache bash build-base git go nodejs npm \
  && git config --global advice.detachedHead false \
- && git clone --branch $GITEA_BRANCH --depth 1 https://github.com/go-gitea/gitea.git
+ && git clone --branch "v${IMAGE_VERSION}" --depth 1 https://github.com/go-gitea/gitea.git
 
 WORKDIR /gitea
 RUN TAGS="bindata" make build
 
-# ╭―------------------------------------------------------------------------╮
-# │                                                                         │
-# │ STAGE 2: gitea-container                                                │
-# │                                                                         │
-# ╰―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――╯
-FROM gautada/alpine:$ALPINE_VERSION
+FROM docker.io/gautada/alpine:$ALPINE_VERSION AS container
 
 # ╭――――――――――――――――――――╮
 # │ METADATA           │
@@ -65,10 +60,10 @@ RUN /bin/mkdir -p /etc/gitea /opt/gitea \
  && /bin/ln -fsv /mnt/volumes/configmaps/app.ini /etc/container/app.ini \
  && /bin/ln -fsv /mnt/volumes/container/app.ini /mnt/volumes/configmaps/app.ini \
  && /bin/ln -fsv /etc/container/app.ini /opt/gitea/app.ini
-    
+
 RUN /sbin/apk add --no-cache bash git openssh-client
-COPY --from=src-gitea /gitea/gitea /usr/bin/gitea
-COPY --from=src-gitea /gitea/custom/conf/app.example.ini /etc/gitea/app.example.ini
+COPY --from=build /gitea/gitea /usr/bin/gitea
+COPY --from=build /gitea/custom/conf/app.example.ini /etc/gitea/app.example.ini
 
 # RUN /bin/mkdir -p /mnt/volumes/container/custom \
 #  /mnt/volumes/container/data \

@@ -3,6 +3,8 @@
 [gitea](https://gitea.io/en-us/)  Gitea is a community managed lightweight code
 hosting solution.
 
+Check the [version](https://github.com/go-gitea/gitea).
+
 ## Features
 
 - **git** - Provides a complete git host.
