@@ -48,7 +48,7 @@ COPY backup /etc/container/backup
 # ╭―
 # │ ENTRYPOINT
 # ╰――――――――――――――――――――
-COPY entrypoint.sh etc/container/entrypoint
+COPY entrypoint.sh /etc/container/entrypoint
 
 # ╭――――――――――――――――――――╮
 # │ APPLICATION        │
