@@ -24,6 +24,7 @@ manifest/
 # symlink to this files `ln -s .gitignore .dockerignore`
 .dockerignore
 
-
+/etc/ssl/cert.pem
+.env
 _containers
 

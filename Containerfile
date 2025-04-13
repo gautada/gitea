@@ -48,27 +48,31 @@ COPY backup /etc/container/backup
 # ╭―
 # │ ENTRYPOINT
 # ╰――――――――――――――――――――
-COPY entrypoint /etc/container/entrypoint
+COPY entrypoint.sh etc/container/entrypoint
 
 # ╭――――――――――――――――――――╮
 # │ APPLICATION        │
 # ╰――――――――――――――――――――╯
 
 # /opt/gitea and /etc/gitea are needed for legacy support (mostly webhooks).
-RUN /bin/mkdir -p /etc/gitea /opt/gitea \
+RUN /bin/mkdir -p /etc/gitea /opt/gitea /etc/container/secrets \
  && /bin/ln -fsv /etc/container/app.ini /etc/gitea/app.ini \
  && /bin/ln -fsv /mnt/volumes/configmaps/app.ini /etc/container/app.ini \
- && /bin/ln -fsv /mnt/volumes/container/app.ini /mnt/volumes/configmaps/app.ini \
- && /bin/ln -fsv /etc/container/app.ini /opt/gitea/app.ini
+ && /bin/ln -fsv /mnt/volumes/container/app.ini \
+                 /mnt/volumes/configmaps/app.ini \
+ && /bin/ln -fsv /etc/container/app.ini /opt/gitea/app.ini \
+ && /bin/ln -fsv /mnt/volumes/configmaps/pg_service.conf \
+                 /home/gitea/.pg_service.conf \
+ && /bin/ln -fsv /mnt/volumes/secrets/postgresql-cert.pem \
+                 /etc/container/secrets/postgresql-cert.pem \
+ && /bin/ln -fsv /mnt/volumes/secrets/postgresql-key.pem \
+                 /etc/container/secrets/postgresql-key.pem \
+ && /sbin/apk add --no-cache bash git openssh-client postgresql17-client
 
-RUN /sbin/apk add --no-cache bash git openssh-client
 COPY --from=build /gitea/gitea /usr/bin/gitea
 COPY --from=build /gitea/custom/conf/app.example.ini /etc/gitea/app.example.ini
 
-# RUN /bin/mkdir -p /mnt/volumes/container/custom \
-#  /mnt/volumes/container/data \
-#  /mnt/volumes/container/log \
-#  /mnt/volumes/container/repos
+
 
 # ╭――――――――――――――――――――╮
 # │ SETTINGS           │
