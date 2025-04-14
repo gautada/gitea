@@ -61,12 +61,6 @@ RUN /bin/mkdir -p /etc/gitea /opt/gitea /etc/container/secrets \
  && /bin/ln -fsv /mnt/volumes/container/app.ini \
                  /mnt/volumes/configmaps/app.ini \
  && /bin/ln -fsv /etc/container/app.ini /opt/gitea/app.ini \
- && /bin/ln -fsv /mnt/volumes/configmaps/pg_service.conf \
-                 /home/gitea/.pg_service.conf \
- && /bin/ln -fsv /mnt/volumes/secrets/postgresql-cert.pem \
-                 /etc/container/secrets/postgresql-cert.pem \
- && /bin/ln -fsv /mnt/volumes/secrets/postgresql-key.pem \
-                 /etc/container/secrets/postgresql-key.pem \
  && /sbin/apk add --no-cache bash git openssh-client postgresql17-client
 
 COPY --from=build /gitea/gitea /usr/bin/gitea
