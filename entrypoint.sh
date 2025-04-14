@@ -21,4 +21,5 @@ container_entrypoint() {
   log "-i" "entrypoint" "Blocking application - gitea($(app_version))"
  /usr/bin/gitea --config /etc/container/app.ini --work-path /mnt/volumes/container --custom-path /mnt/volumes/container/custom web
  fi
+ # tail -f /dev/null
 }

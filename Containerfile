@@ -29,7 +29,7 @@ LABEL description="A gitea container"
 # ╰――――――――――――――――――――
 ARG USER=gitea
 # Set shell to /bin/ash and enable pipefail for Alpine-based images
-SHELL ["/bin/ash", "-o", "pipefail", "-c"]
+# SHELL ["/bin/ash", "-o", "pipefail", "-c"]
 RUN /usr/sbin/usermod -l $USER alpine \
  && /usr/sbin/usermod -d /home/$USER -m $USER \
  && /usr/sbin/groupmod -n $USER alpine \
@@ -60,6 +60,10 @@ RUN /bin/mkdir -p /etc/gitea /opt/gitea /etc/container/secrets \
  && /bin/ln -fsv /mnt/volumes/configmaps/app.ini /etc/container/app.ini \
  && /bin/ln -fsv /mnt/volumes/container/app.ini \
                  /mnt/volumes/configmaps/app.ini \
+# RUN /bin/ln -fsv /mnt/volumes/secrets/postgresql-cert.pem \
+#                  /etc/container/secrets/postgresql-cert.pem 
+# RUN /bin/ln -fsv /mnt/volumes/secrets/postgresql-key.pem \
+#                  /etc/container/secrets/postgresql-key.pem 
  && /bin/ln -fsv /etc/container/app.ini /opt/gitea/app.ini \
  && /sbin/apk add --no-cache bash git openssh-client postgresql17-client
 

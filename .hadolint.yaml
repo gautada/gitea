@@ -1,0 +1,3 @@
+---
+ignored:
+  - DL4006 # Eliminates the need for SHELL command on `|`.
