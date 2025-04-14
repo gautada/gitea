@@ -25,11 +25,18 @@ jobs:
       - name: "Run Super-Linter"
         uses: super-linter/super-linter@v5
         env:
-          VALIDATE_DOCKERFILE: true
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VALIDATE_ALL_CODEBASE: false
+          VALIDATE_DOCKERFILE: true  # Make sure this is enabled
+          LINTER_RULES_PATH: ./
           DOCKERFILE_FILE_NAME: Containerfile
-          # DEFAULT_BRANCH: dev
-          # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEFAULT_BRANCH: dev
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Read .arg file and export variables
+        run: |
+          while IFS='=' read -r key value; do
+          echo "$key=$value" >> "$GITHUB_ENV"
+          done < .arg
 
       - name: "Set up packages"
         # QEMU for aarch64 (using emulation)
