@@ -36,6 +36,7 @@ LABEL org.opencontainers.image.license="Upstream"
 # ╭――――――――――――――――――――╮
 # │ USER               │
 # ╰――――――――――――――――――――╯
+# hadolint ignore=DL4006
 ARG USER=gitea
 # Set shell to /bin/ash and enable pipefail for Alpine-based images
 # SHELL ["/bin/ash", "-o", "pipefail", "-c"]
