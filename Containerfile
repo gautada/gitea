@@ -36,14 +36,13 @@ LABEL org.opencontainers.image.license="Upstream"
 # ╭――――――――――――――――――――╮
 # │ USER               │
 # ╰――――――――――――――――――――╯
-# hadolint ignore=DL4006
 ARG USER=gitea
 # Set shell to /bin/ash and enable pipefail for Alpine-based images
 # SHELL ["/bin/ash", "-o", "pipefail", "-c"]
 RUN /usr/sbin/usermod -l $USER alpine \
  && /usr/sbin/usermod -d /home/$USER -m $USER \
  && /usr/sbin/groupmod -n $USER alpine \
- && /bin/echo "$USER:$USER" | /usr/sbin/chpasswd \
+ && /bin/echo "$USER:$USER" | /usr/sbin/chpasswd
 
 # ╭――――――――――――――――――――╮
 # │ PRIVILEGES         │
