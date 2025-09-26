@@ -1,11 +1,12 @@
 ARG ALPINE_VERSION=latest
-# │ STAGE: source gitea
-# ╰―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――
 FROM docker.io/gautada/alpine:$ALPINE_VERSION AS build
 
-ARG IMAGE_VERSION=1.23.5
-ARG GITEA_VERSION=$IMAGE_VERSION
-ARG GITEA_BRANCH=v"$GITEA_VERSION"
+# ╭――――――――――――――――――――╮
+# │ VARIABLES          │
+# ╰――――――――――――――――――――╯
+ARG IMAGE_NAME="gitea"
+ARG IMAGE_VERSION="1.23.5"
+ARG GITEA_BRANCH=v"$IMAGE_VERSION"
 
 WORKDIR /
 RUN /sbin/apk add --no-cache bash build-base git go nodejs npm \
@@ -15,18 +16,26 @@ RUN /sbin/apk add --no-cache bash build-base git go nodejs npm \
 WORKDIR /gitea
 RUN TAGS="bindata" make build
 
+
+
+
+
+
 FROM docker.io/gautada/alpine:$ALPINE_VERSION AS container
 
 # ╭――――――――――――――――――――╮
 # │ METADATA           │
 # ╰――――――――――――――――――――╯
-LABEL source="https://github.com/gautada/gitea-container.git"
-LABEL maintainer="Adam Gautier <adam@gautier.org>"
-LABEL description="A gitea container"
+LABEL org.opencontainers.image.title="${IMAGE_NAME}"
+LABEL org.opencontainers.image.description="A gitea container."
+LABEL org.opencontainers.image.url="https://hub.docker.com/r/gautada/${IMAGE_NAME}"
+LABEL org.opencontainers.image.source="https://github.com/gautada/${IMAGE_NAME}"
+LABEL org.opencontainers.image.version="${IMAGE_VERSION}"
+LABEL org.opencontainers.image.license="Upstream"
 
-# ╭―
-# │ USER
-# ╰――――――――――――――――――――
+# ╭――――――――――――――――――――╮
+# │ USER               │
+# ╰――――――――――――――――――――╯
 ARG USER=gitea
 # Set shell to /bin/ash and enable pipefail for Alpine-based images
 # SHELL ["/bin/ash", "-o", "pipefail", "-c"]
@@ -35,25 +44,24 @@ RUN /usr/sbin/usermod -l $USER alpine \
  && /usr/sbin/groupmod -n $USER alpine \
  && /bin/echo "$USER:$USER" | /usr/sbin/chpasswd \
 
-# ╭―
-# │ PRIVILEGES
-# ╰――――――――――――――――――――
+# ╭――――――――――――――――――――╮
+# │ PRIVILEGES         │
+# ╰――――――――――――――――――――╯
 COPY privileges /etc/container/privileges
 
-# ╭―
-# │ BACKUP
-# ╰――――――――――――――――――――
+# ╭――――――――――――――――――――╮
+# │ BACKUP             │
+# ╰――――――――――――――――――――╯
 COPY backup /etc/container/backup
 
-# ╭―
-# │ ENTRYPOINT
-# ╰――――――――――――――――――――
+# ╭――――――――――――――――――――╮
+# │ ENTTRYPOINT        │
+# ╰――――――――――――――――――――╯
 COPY entrypoint.sh /etc/container/entrypoint
 
 # ╭――――――――――――――――――――╮
 # │ APPLICATION        │
 # ╰――――――――――――――――――――╯
-
 # /opt/gitea and /etc/gitea are needed for legacy support (mostly webhooks).
 RUN /bin/mkdir -p /etc/gitea /opt/gitea /etc/container/secrets \
  && /bin/ln -fsv /etc/container/app.ini /etc/gitea/app.ini \
@@ -69,8 +77,6 @@ RUN /bin/mkdir -p /etc/gitea /opt/gitea /etc/container/secrets \
 
 COPY --from=build /gitea/gitea /usr/bin/gitea
 COPY --from=build /gitea/custom/conf/app.example.ini /etc/gitea/app.example.ini
-
-
 
 # ╭――――――――――――――――――――╮
 # │ SETTINGS           │
