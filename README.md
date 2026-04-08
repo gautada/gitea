@@ -43,3 +43,19 @@ Run the upgrade doctor
 /usr/bin/gitea -c /mnt/volumes/configmaps/gitea.ini doctor \
   recreate-table project system_setting
 ```
+
+## JWT secrets
+
+The container entrypoint reads JWT secrets from files so they can be provided via
+mounted Kubernetes/OpenShift secrets (or Docker secrets) instead of placing
+them directly in `app.ini`.
+
+| Secret | Default file path | Environment override |
+| ------ | ----------------- | -------------------- |
+| Core JWT secret | `/mnt/volumes/secrets/jwt-secret` | `JWT_SECRET_FILE` |
+| LFS JWT secret | `/mnt/volumes/secrets/lfs-jwt-secret` | `LFS_JWT_SECRET_FILE` |
+| OAuth2 JWT secret | `/mnt/volumes/secrets/oauth2-jwt-secret` | `OAUTH2_JWT_SECRET_FILE`
+
+If `GITEA__security__<secret>` variables are already set they take precedence;
+otherwise, the entrypoint exports the values from the files (stripping trailing
+newlines) before launching Gitea.
