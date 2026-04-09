@@ -1,79 +1,82 @@
 ARG ALPINE_VERSION=latest
-# │ STAGE: source gitea                                           
-# ╰―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――
-FROM docker.io/gautada/alpine:$ALPINE_VERSION as src-gitea
+FROM docker.io/gautada/alpine:$ALPINE_VERSION AS build
 
-ARG CONTAINER_VERSION=1.23.1
-ARG GITEA_VERSION=$CONTAINER_VERSION
-ARG GITEA_BRANCH=v"$GITEA_VERSION"
+# ╭――――――――――――――――――――╮
+# │ VARIABLES          │
+# ╰――――――――――――――――――――╯
+ARG IMAGE_NAME="gitea"
+ARG IMAGE_VERSION="1.23.5"
+ARG GITEA_BRANCH=v"$IMAGE_VERSION"
 
 WORKDIR /
 RUN /sbin/apk add --no-cache bash build-base git go nodejs npm \
  && git config --global advice.detachedHead false \
- && git clone --branch $GITEA_BRANCH --depth 1 https://github.com/go-gitea/gitea.git
+ && git clone --branch "v${IMAGE_VERSION}" --depth 1 https://github.com/go-gitea/gitea.git
 
 WORKDIR /gitea
 RUN TAGS="bindata" make build
 
-# ╭―------------------------------------------------------------------------╮
-# │                                                                         │
-# │ STAGE 2: gitea-container                                                │
-# │                                                                         │
-# ╰―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――╯
-FROM gautada/alpine:$ALPINE_VERSION
+
+
+
+
+
+FROM docker.io/gautada/alpine:$ALPINE_VERSION AS container
 
 # ╭――――――――――――――――――――╮
 # │ METADATA           │
 # ╰――――――――――――――――――――╯
-LABEL source="https://github.com/gautada/gitea-container.git"
-LABEL maintainer="Adam Gautier <adam@gautier.org>"
-LABEL description="A gitea container"
+LABEL org.opencontainers.image.title="${IMAGE_NAME}"
+LABEL org.opencontainers.image.description="A gitea container."
+LABEL org.opencontainers.image.url="https://hub.docker.com/r/gautada/${IMAGE_NAME}"
+LABEL org.opencontainers.image.source="https://github.com/gautada/${IMAGE_NAME}"
+LABEL org.opencontainers.image.version="${IMAGE_VERSION}"
+LABEL org.opencontainers.image.license="Upstream"
 
-# ╭―
-# │ USER
-# ╰――――――――――――――――――――
+# ╭――――――――――――――――――――╮
+# │ USER               │
+# ╰――――――――――――――――――――╯
 ARG USER=gitea
 # Set shell to /bin/ash and enable pipefail for Alpine-based images
-SHELL ["/bin/ash", "-o", "pipefail", "-c"]
+# SHELL ["/bin/ash", "-o", "pipefail", "-c"]
 RUN /usr/sbin/usermod -l $USER alpine \
  && /usr/sbin/usermod -d /home/$USER -m $USER \
  && /usr/sbin/groupmod -n $USER alpine \
- && /bin/echo "$USER:$USER" | /usr/sbin/chpasswd \
+ && /bin/echo "$USER:$USER" | /usr/sbin/chpasswd
 
-# ╭―
-# │ PRIVILEGES
-# ╰――――――――――――――――――――
+# ╭――――――――――――――――――――╮
+# │ PRIVILEGES         │
+# ╰――――――――――――――――――――╯
 COPY privileges /etc/container/privileges
 
-# ╭―
-# │ BACKUP
-# ╰――――――――――――――――――――
+# ╭――――――――――――――――――――╮
+# │ BACKUP             │
+# ╰――――――――――――――――――――╯
 COPY backup /etc/container/backup
 
-# ╭―
-# │ ENTRYPOINT
-# ╰――――――――――――――――――――
-COPY entrypoint /etc/container/entrypoint
+# ╭――――――――――――――――――――╮
+# │ ENTTRYPOINT        │
+# ╰――――――――――――――――――――╯
+COPY entrypoint.sh /etc/container/entrypoint
 
 # ╭――――――――――――――――――――╮
 # │ APPLICATION        │
 # ╰――――――――――――――――――――╯
-
 # /opt/gitea and /etc/gitea are needed for legacy support (mostly webhooks).
-RUN /bin/mkdir -p /etc/gitea /opt/gitea \
+RUN /bin/mkdir -p /etc/gitea /opt/gitea /etc/container/secrets \
  && /bin/ln -fsv /etc/container/app.ini /etc/gitea/app.ini \
  && /bin/ln -fsv /mnt/volumes/configmaps/app.ini /etc/container/app.ini \
- && /bin/ln -fsv /mnt/volumes/container/app.ini /mnt/volumes/configmaps/app.ini \
- && /bin/ln -fsv /etc/container/app.ini /opt/gitea/app.ini
-    
-RUN /sbin/apk add --no-cache bash git openssh-client
-COPY --from=src-gitea /gitea/gitea /usr/bin/gitea
-COPY --from=src-gitea /gitea/custom/conf/app.example.ini /etc/gitea/app.example.ini
+ && /bin/ln -fsv /mnt/volumes/container/app.ini \
+                 /mnt/volumes/configmaps/app.ini \
+# RUN /bin/ln -fsv /mnt/volumes/secrets/postgresql-cert.pem \
+#                  /etc/container/secrets/postgresql-cert.pem 
+# RUN /bin/ln -fsv /mnt/volumes/secrets/postgresql-key.pem \
+#                  /etc/container/secrets/postgresql-key.pem 
+ && /bin/ln -fsv /etc/container/app.ini /opt/gitea/app.ini \
+ && /sbin/apk add --no-cache bash git openssh-client postgresql17-client
 
-# RUN /bin/mkdir -p /mnt/volumes/container/custom \
-#  /mnt/volumes/container/data \
-#  /mnt/volumes/container/log \
-#  /mnt/volumes/container/repos
+COPY --from=build /gitea/gitea /usr/bin/gitea
+COPY --from=build /gitea/custom/conf/app.example.ini /etc/gitea/app.example.ini
 
 # ╭――――――――――――――――――――╮
 # │ SETTINGS           │
