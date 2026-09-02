@@ -24,6 +24,8 @@ ensure_jwt_secrets() {
 }
 
 ensure_jwt_secrets
-/usr/bin/gitea --config /etc/container/app.ini \
-               --work-path /mnt/volumes/container \
-               --custom-path /mnt/volumes/container/custom web
+S6_USER=$(id -nu 1001)
+exec s6-setuidgid "${S6_USER}" \
+   usr/bin/gitea --config /etc/container/app.ini \
+                 --work-path /mnt/volumes/container \
+                 --custom-path /mnt/volumes/container/custom web
