@@ -1,10 +1,10 @@
 ARG DEBIAN_VERSION=13.6
 
-ARG IMAGE_NAME="gitea"
-ARG IMAGE_VERSION="1.23.5"
-ARG GITEA_BRANCH="v${IMAGE_VERSION}"
-
 FROM docker.io/gautada/debian:${DEBIAN_VERSION} AS BUILD
+
+ARG IMAGE_NAME="gitea"
+ARG IMAGE_VERSION="1.27.3"
+ARG GITEA_BRANCH="v${IMAGE_VERSION}"
 
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
