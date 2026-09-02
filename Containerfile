@@ -77,7 +77,7 @@ RUN apt-get update \
  && rm -rf /var/lib/apt/lists/*
 
 # ╭――――――――――――――――――――╮
-# │ USER                      │
+# │ USER               │
 # ╰――――――――――――――――――――╯
 ARG OLDUSER=debian
 ARG USER=gitea
@@ -88,26 +88,28 @@ RUN /usr/sbin/usermod -l "$USER" "$OLDUSER" \
  && /bin/echo "$USER:$USER" | /usr/sbin/chpasswd
 
 # ╭――――――――――――――――――――╮
-# │ PRIVILEGES                │
+# │ PRIVILEGES         │
 # ╰――――――――――――――――――――╯
 COPY etc/container/privileges /etc/container/privileges
 
 # ╭――――――――――――――――――――╮
-# │ BACKUP                    │
+# │ BACKUP             │
 # ╰――――――――――――――――――――╯
 COPY etc/container/backup /etc/container/backup
 
 # ╭――――――――――――――――――――╮
-# │ ENTRYPOINT                │
+# │ ENTRYPOINT         │
 # ╰――――――――――――――――――――╯
 COPY etc/services.d/gitea/run /etc/services.d/gitea/run
 COPY usr/bin/container-version /usr/bin/container-version
 
 # ╭――――――――――――――――――――╮
-# │ APPLICATION               │
+# │ APPLICATION        │
 # ╰――――――――――――――――――――╯
 # /opt/gitea and /etc/gitea are needed for legacy support (mostly webhooks).
-RUN /bin/mkdir -p \
+RUN ln -fsv /mnt/volumes/data /mnt/volumes/container \
+ && ln -fsv /mnt/volumes/configuration /mnt/volumes/configmaps \
+ && /bin/mkdir -p \
       /etc/gitea \
       /opt/gitea \
       /etc/container/secrets \
@@ -128,15 +130,8 @@ COPY --from=BUILD /gitea/gitea /usr/bin/gitea
 COPY --from=BUILD /gitea/custom/conf/app.example.ini /etc/gitea/app.example.ini
 
 # ╭――――――――――――――――――――╮
-# │ SETTINGS                  │
+# │ SETTINGS           │
 # ╰――――――――――――――――――――╯
 USER $USER
-
-VOLUME /mnt/volumes/backup
-VOLUME /mnt/volumes/configmaps
-VOLUME /mnt/volumes/container
-VOLUME /mnt/volumes/secrets
-
 EXPOSE 8080/tcp
-
 WORKDIR /home/$USER
