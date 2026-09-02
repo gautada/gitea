@@ -1,27 +1,33 @@
-ARG ALPINE_VERSION=latest
-FROM docker.io/gautada/alpine:$ALPINE_VERSION AS build
+ARG DEBIAN_VERSION=13.6
 
-# ╭――――――――――――――――――――╮
-# │ VARIABLES          │
-# ╰――――――――――――――――――――╯
 ARG IMAGE_NAME="gitea"
 ARG IMAGE_VERSION="1.23.5"
-ARG GITEA_BRANCH=v"$IMAGE_VERSION"
+ARG GITEA_BRANCH="v${IMAGE_VERSION}"
 
-WORKDIR /
-RUN /sbin/apk add --no-cache bash build-base git go nodejs npm \
+FROM docker.io/gautada/debian:${DEBIAN_VERSION} AS BUILD
+
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+      bash \
+      build-essential \
+      ca-certificates \
+      git \
+      golang \
+      nodejs \
+      npm \
+ && rm -rf /var/lib/apt/lists/* \
  && git config --global advice.detachedHead false \
- && git clone --branch "v${IMAGE_VERSION}" --depth 1 https://github.com/go-gitea/gitea.git
+ && git clone \
+      --branch "${GITEA_BRANCH}" \
+      --depth 1 \
+      https://github.com/go-gitea/gitea.git
 
 WORKDIR /gitea
+
 RUN TAGS="bindata" make build
 
 
-
-
-
-
-FROM docker.io/gautada/alpine:$ALPINE_VERSION AS container
+FROM docker.io/gautada/debian:${DEBIAN_VERSION} AS CONTAINER
 
 # ╭――――――――――――――――――――╮
 # │ METADATA           │
@@ -36,28 +42,30 @@ LABEL org.opencontainers.image.license="Upstream"
 # ╭――――――――――――――――――――╮
 # │ USER               │
 # ╰――――――――――――――――――――╯
+# Rename the base debian user to hermes. Follows the same pattern as other
+# gautada containers (e.g. gautada/homepage).
+ARG OLDUSER=debian
 ARG USER=gitea
-# Set shell to /bin/ash and enable pipefail for Alpine-based images
-# SHELL ["/bin/ash", "-o", "pipefail", "-c"]
-RUN /usr/sbin/usermod -l $USER alpine \
+RUN /usr/sbin/usermod -l $USER $OLDUSER \
  && /usr/sbin/usermod -d /home/$USER -m $USER \
- && /usr/sbin/groupmod -n $USER alpine \
- && /bin/echo "$USER:$USER" | /usr/sbin/chpasswd
+ && /usr/sbin/groupmod -n $USER $OLDUSER \
+ && /bin/echo "$USER:$USER" | /usr/sbin/chpasswd 
 
 # ╭――――――――――――――――――――╮
 # │ PRIVILEGES         │
 # ╰――――――――――――――――――――╯
-COPY privileges /etc/container/privileges
+COPY etc/container/privileges /etc/container/privileges
 
 # ╭――――――――――――――――――――╮
 # │ BACKUP             │
 # ╰――――――――――――――――――――╯
-COPY backup /etc/container/backup
+COPY etc/container/backup /etc/container/backup
 
 # ╭――――――――――――――――――――╮
 # │ ENTTRYPOINT        │
 # ╰――――――――――――――――――――╯
-COPY entrypoint.sh /etc/container/entrypoint
+COPY etc/services.d/gitea/run /etc/services.d/gitea/run
+# COPY entrypoint.sh /etc/container/entrypoint
 
 # ╭――――――――――――――――――――╮
 # │ APPLICATION        │
@@ -75,8 +83,8 @@ RUN /bin/mkdir -p /etc/gitea /opt/gitea /etc/container/secrets \
  && /bin/ln -fsv /etc/container/app.ini /opt/gitea/app.ini \
  && /sbin/apk add --no-cache bash git openssh-client postgresql17-client
 
-COPY --from=build /gitea/gitea /usr/bin/gitea
-COPY --from=build /gitea/custom/conf/app.example.ini /etc/gitea/app.example.ini
+COPY --from=BUILD /gitea/gitea /usr/bin/gitea
+COPY --from=BUILD /gitea/custom/conf/app.example.ini /etc/gitea/app.example.ini
 
 # ╭――――――――――――――――――――╮
 # │ SETTINGS           │
