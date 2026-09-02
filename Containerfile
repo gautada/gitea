@@ -40,6 +40,13 @@ LABEL org.opencontainers.image.version="${IMAGE_VERSION}"
 LABEL org.opencontainers.image.license="Upstream"
 
 # ╭――――――――――――――――――――╮
+# │ PACKAGES           │
+# ╰――――――――――――――――――――╯
+RUN apt-get update \
+ && apt-get upgrade --yes --no-install-recommends \
+ && rm -rf /var/lib/apt/lists/*
+ 
+# ╭――――――――――――――――――――╮
 # │ USER               │
 # ╰――――――――――――――――――――╯
 # Rename the base debian user to hermes. Follows the same pattern as other
@@ -66,6 +73,8 @@ COPY etc/container/backup /etc/container/backup
 # ╰――――――――――――――――――――╯
 COPY etc/services.d/gitea/run /etc/services.d/gitea/run
 # COPY entrypoint.sh /etc/container/entrypoint
+
+COPY usr/bin/container-version /usr/bin/container-version
 
 # ╭――――――――――――――――――――╮
 # │ APPLICATION        │
