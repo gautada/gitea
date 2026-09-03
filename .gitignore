@@ -4,9 +4,6 @@
 # XCode - Project files 
 *.xcodeproj/
 
-# Nova - Editor files 
-*.nova/
-
 # Desktop Services Store - Custom view preferences
 .DS_Store
 
@@ -24,7 +21,16 @@ manifest/
 # symlink to this files `ln -s .gitignore .dockerignore`
 .dockerignore
 
-/etc/ssl/cert.pem
+# The files are generally for container development. The linters should 
+# generally come from the templates of cicd.
 .env
-_containers
-
+.flake8
+.hadolint.yaml
+.htmlhintrc
+.jscpd.json
+.markdownlint.yaml
+.pre-commit-config.yaml
+.shellcheckrc
+.sqlfluff
+.yamllint.yaml
+pyproject.toml

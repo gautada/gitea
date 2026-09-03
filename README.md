@@ -54,7 +54,7 @@ them directly in `app.ini`.
 | ------ | ----------------- | -------------------- |
 | Core JWT secret | `/mnt/volumes/secrets/jwt-secret` | `JWT_SECRET_FILE` |
 | LFS JWT secret | `/mnt/volumes/secrets/lfs-jwt-secret` | `LFS_JWT_SECRET_FILE` |
-| OAuth2 JWT secret | `/mnt/volumes/secrets/oauth2-jwt-secret` | `OAUTH2_JWT_SECRET_FILE`
+| OAuth2 JWT secret | `/mnt/volumes/secrets/oauth2-jwt-secret` | `OAUTH2_JWT_SECRET_FILE` |
 
 If `GITEA__security__<secret>` variables are already set they take precedence;
 otherwise, the entrypoint exports the values from the files (stripping trailing
