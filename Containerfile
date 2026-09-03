@@ -50,7 +50,7 @@ RUN go version \
 # ARG NODE_VERSION=24.20.0
 # FROM docker.io/gautada/node:${NODE_VERSION} AS CONTAINER
 
-FROM docker.io/gautada/debian:${DEBIAN_VERSION} AS CONTAINER
+FROM docker.io/gautada/debian:${DEBIAN_VERSION} AS RUNTIME
 
 #
 # ARG variables have stage scope. Redeclare them here.
