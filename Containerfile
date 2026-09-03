@@ -46,6 +46,10 @@ RUN go version \
 # Runtime
 # ═══════════════════════════════════════════════════════════════════════
 
+# This is redundant because the node code is compiled into the gitea binary
+# ARG NODE_VERSION=24.20.0
+# FROM docker.io/gautada/node:${NODE_VERSION} AS CONTAINER
+
 FROM docker.io/gautada/debian:${DEBIAN_VERSION} AS CONTAINER
 
 #
@@ -55,7 +59,7 @@ ARG IMAGE_NAME="gitea"
 ARG IMAGE_VERSION="${GITEA_VERSION}"
 
 # ╭――――――――――――――――――――╮
-# │ METADATA                  │
+# │ METADATA           │
 # ╰――――――――――――――――――――╯
 LABEL org.opencontainers.image.title="${IMAGE_NAME}"
 LABEL org.opencontainers.image.description="A gitea container."
@@ -65,7 +69,7 @@ LABEL org.opencontainers.image.version="${IMAGE_VERSION}"
 LABEL org.opencontainers.image.license="Upstream"
 
 # ╭――――――――――――――――――――╮
-# │ PACKAGES                  │
+# │ PACKAGES           │
 # ╰――――――――――――――――――――╯
 RUN apt-get update \
  && apt-get upgrade -y \
