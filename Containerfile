@@ -132,6 +132,6 @@ COPY --from=BUILD /gitea/custom/conf/app.example.ini /etc/gitea/app.example.ini
 # ╭――――――――――――――――――――╮
 # │ SETTINGS           │
 # ╰――――――――――――――――――――╯
-USER $USER
+# USER $USER
 EXPOSE 8080/tcp
 WORKDIR /home/$USER
