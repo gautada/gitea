@@ -25,7 +25,7 @@
 #
 # ensure_jwt_secrets
 
-S6_USER=$(id -nu 1001)
+S6_USER=$(id -nu 1000)
 exec s6-setuidgid "${S6_USER}" \
    /usr/bin/gitea --config /etc/container/app.ini \
                  --work-path /mnt/volumes/data \
